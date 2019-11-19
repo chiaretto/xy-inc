@@ -15,7 +15,8 @@ Meta Data Management System
 # Requeriments
   - Docker
 
-You can also:
+# Run
+
   - clone this repository
 ```sh
 $ git clone ...
@@ -33,26 +34,27 @@ Basic users
 | ADMIN | admin | admin123 |
 
 How to use
-  - Afer run docker, access the url API DOCS Swagger
+  - After run docker, access the url API DOCS Swagger
   ```http://localhost:8080/swagger-ui.html```
-  - Accesss Mongo Express
+  - Access Mongo Express
   ```http://localhost:8081/```
-  - Accesss Admin API to Create Models
+  - Access Admin API to Create Models
   ```http://localhost:8080/admin/model```
-  - Accesss Admin API
+  - Access Admin API
   ```http://localhost:8080/api/{model}```
-
-# Infrastructure
-
-Present
-![](https://github.com/chiaretto/xy-inc/blob/master/docs/arq-atual.png?raw=true)
-Evolution to Baas
-![](https://github.com/chiaretto/xy-inc/blob/master/docs/arq-bass.png?raw=true)
 
 # Architecture
 
-Present
+- Present
+![](https://github.com/chiaretto/xy-inc/blob/master/docs/arq-atual.png?raw=true)
+
+- Evolution to Baas
+![](https://github.com/chiaretto/xy-inc/blob/master/docs/arq-bass.png?raw=true)
+
+# Infrastructure
+
+- Present
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/infra-atual.png?raw=true)
 
-Evolution to Autoscalling
+- Evolution to Autoscalling
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/infr-nova.png?raw=true)
