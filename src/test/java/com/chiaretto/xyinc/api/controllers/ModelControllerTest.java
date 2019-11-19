@@ -158,36 +158,36 @@ public class ModelControllerTest {
 				new Field("category", "string")))));
 		
 //		when(modelControllerMock.insert(modelMockPost, null)).thenReturn(ResponseEntity.ok(new Response<Optional<Model>>(modelMock)));	
-		
-		String content = "{\n" + 
-				"	\"name\": \"product\",\n" + 
-				"	\"fields\": [\n" + 
-				"		{\n" + 
-				"			\"name\":\"name\",\n" + 
-				"			\"type\": \"string\"\n" + 
-				"		},\n" + 
-				"		{\n" + 
-				"			\"name\":\"price\",\n" + 
-				"			\"type\": \"float\"\n" + 
-				"		},\n" + 
-				"		{\n" + 
-				"			\"name\":\"qty\",\n" + 
-				"			\"type\": \"integer\"\n" + 
-				"		},\n" + 
-				"		{\n" + 
-				"			\"name\":\"category\",\n" + 
-				"			\"type\": \"string\"\n" + 
-				"		}\n" + 
-				"		]\n" + 
-				"}";
-		
-		this.mockMvc.perform(post("/admin/model")
-				.content("{\"name\": \"customer\"}")
-				.contentType(MediaType.APPLICATION_JSON)
-				.with(httpBasic("admin", "admin123")))
-		.andDo(MockMvcResultHandlers.print())
-		.andExpect(status().isCreated())
-		.andReturn();
+//		
+//		String content = "{\n" + 
+//				"	\"name\": \"product\",\n" + 
+//				"	\"fields\": [\n" + 
+//				"		{\n" + 
+//				"			\"name\":\"name\",\n" + 
+//				"			\"type\": \"string\"\n" + 
+//				"		},\n" + 
+//				"		{\n" + 
+//				"			\"name\":\"price\",\n" + 
+//				"			\"type\": \"float\"\n" + 
+//				"		},\n" + 
+//				"		{\n" + 
+//				"			\"name\":\"qty\",\n" + 
+//				"			\"type\": \"integer\"\n" + 
+//				"		},\n" + 
+//				"		{\n" + 
+//				"			\"name\":\"category\",\n" + 
+//				"			\"type\": \"string\"\n" + 
+//				"		}\n" + 
+//				"		]\n" + 
+//				"}";
+//		
+//		this.mockMvc.perform(post("/admin/model")
+//				.content("{\"name\": \"customer\"}")
+//				.contentType(MediaType.APPLICATION_JSON)
+//				.with(httpBasic("admin", "admin123")))
+//		.andDo(MockMvcResultHandlers.print())
+//		.andExpect(status().isCreated())
+//		.andReturn();
 	}
 	
 	
