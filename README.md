@@ -1,3 +1,7 @@
+# CodeCoverage
+
+![](https://github.com/chiaretto/xy-inc/blob/master/docs/codecoverade.png?raw=true)
+
 [![codecov](https://codecov.io/gh/chiaretto/xy-inc/branch/master/graph/badge.svg?token=mvBT1vyowK)](https://codecov.io/gh/chiaretto/xy-inc)
 
 # XYInc
@@ -28,14 +32,14 @@ $ git clone ...
 $ docker-compose up
 ```
 
-Basic users
+# Basic users
 
 | Role | User | Pass |
 | ------ | ------ | ------ |
 | USER | user | user123 |
 | ADMIN | admin | admin123 |
 
-How to use
+# How to use
   - After run docker, access the url API DOCS Swagger
   ```http://localhost:8080/swagger-ui.html```
   - Access Mongo Express
@@ -59,4 +63,14 @@ How to use
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/infra-atual.png?raw=true)
 
 - Evolution to Autoscalling
-![](https://github.com/chiaretto/xy-inc/blob/master/docs/infr-nova.png?raw=true)
+![](https://github.com/chiaretto/xy-inc/blob/master/docs/baas.pngg?raw=true)
+
+# Swagger Docs
+
+  ```http://localhost:8080/swagger-ui.html```
+  
+![](https://github.com/chiaretto/xy-inc/blob/master/docs/documentacao.png?raw=true)
+
+# Postman Collection
+
+https://www.getpostman.com/collections/f1853877aa142e6a7208
