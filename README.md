@@ -29,10 +29,11 @@ Meta Data Management System
 
   - clone this repository
 ```sh
-$ git clone ...
+$ git clone https://github.com/chiaretto/xy-inc.git
 ```
   - execute shell in folder
 ```sh
+$ cd xyinc
 $ ./RodaDockerCompose.sh
 ```
 
