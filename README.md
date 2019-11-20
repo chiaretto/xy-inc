@@ -33,7 +33,7 @@ $ git clone https://github.com/chiaretto/xy-inc.git
 ```
   - execute shell in folder
 ```sh
-$ cd xyinc
+$ cd xy-inc
 $ ./RodaDockerCompose.sh
 ```
 
