@@ -21,19 +21,17 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: MongoDB2019!
+      MONGO_INITDB_DATABASE: xyinc
     ports:
       - "27017:27017"
     volumes:
-      - ./volume/mongo/data/db:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - mongo-compose-network
 
   java:
     container_name: java
     build: .
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: MongoDB2019!
     ports:
       - "8080:8080"
     links:
