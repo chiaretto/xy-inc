@@ -51,18 +51,18 @@ $ ./RodaDockerCompose.sh
 
 # Architecture
 
-- Present
+### Present
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/arq-atual.png?raw=true)
 
-- Evolution to Baas
+### Evolution to Baas
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/arq-bass.png?raw=true)
 
 # Infrastructure
 
-- Present
+### Present
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/infra-atual.png?raw=true)
 
-- Evolution to Autoscalling
+### Evolution to BaaS
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/baas.png?raw=true)
 
 # Swagger Docs
