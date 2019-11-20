@@ -63,7 +63,7 @@ $ docker-compose up
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/infra-atual.png?raw=true)
 
 - Evolution to Autoscalling
-![](https://github.com/chiaretto/xy-inc/blob/master/docs/baas.pngg?raw=true)
+![](https://github.com/chiaretto/xy-inc/blob/master/docs/baas.png?raw=true)
 
 # Swagger Docs
 
