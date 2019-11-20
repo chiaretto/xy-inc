@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MetaModelControllerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">XyInc (20 de nov de 2019 03:54:50)</a> &gt; <a href="../../index.html" class="el_group">XyInc</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.chiaretto.xyinc.api.controllers</a> &gt; <span class="el_source">MetaModelControllerTest.java</span></div><h1>MetaModelControllerTest.java</h1><pre class="source lang-java linenums">package com.chiaretto.xyinc.api.controllers;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.chiaretto.xyinc.api.documents.Field;
+import com.chiaretto.xyinc.api.documents.MetaModel;
+import com.chiaretto.xyinc.api.documents.Model;
+import com.chiaretto.xyinc.api.services.MetaModelService;
+import com.chiaretto.xyinc.api.services.ModelService;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.Alphanumeric.class)
+<span class="fc" id="L31">public class MetaModelControllerTest {</span>
+	
+	@Autowired
+	private TestRestTemplate restTemplate;
+	
+	@Autowired
+	private MetaModelService metaModelService;
+	
+	@Autowired
+	private ModelService modelService;
+	
+	@LocalServerPort
+	private int port;
+	
+	@Test
+	@DisplayName(&quot;01 - List all data of model&quot;)
+	public void test01getAllByModel() {
+		// Clear Model
+<span class="fc" id="L49">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L51">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L52">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L53">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L54">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		// Creating Meta Model
+<span class="fc" id="L56">		this.metaModelService.insert(new MetaModel(null, &quot;customer&quot;, new HashMap&lt;String, String&gt;() {</span>
+			private static final long serialVersionUID = 1L;
+		{
+<span class="fc" id="L59">		    put(&quot;name&quot;,&quot;Fabiano Chiaretto&quot;);</span>
+<span class="fc" id="L60">		    put(&quot;age&quot;,&quot;33&quot;);</span>
+<span class="fc" id="L61">		    put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		}}));
+		
+<span class="fc" id="L64">		restTemplate = restTemplate.withBasicAuth(&quot;user&quot;, &quot;user123&quot;);</span>
+<span class="fc" id="L65">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/api/{model}&quot;, String.class, model.getName());</span>
+<span class="fc" id="L66">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());</span>
+<span class="fc" id="L67">		System.out.println(response);</span>
+<span class="fc" id="L68">	}</span>
+	
+	@Test
+	@DisplayName(&quot;02 - Get one data by model by id&quot;)
+	public void test0200getByModelById() {
+		// Clear Model and MetaModel
+<span class="fc" id="L74">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+<span class="fc" id="L75">		this.metaModelService.deleteByModel(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L77">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L78">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L79">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L80">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		// Creating Meta Model
+<span class="fc" id="L82">		MetaModel metaModel = this.metaModelService.insert(new MetaModel(null, &quot;customer&quot;, new HashMap&lt;String, String&gt;() {</span>
+			private static final long serialVersionUID = 1L;
+		{
+<span class="fc" id="L85">		    put(&quot;name&quot;,&quot;Fabiano Chiaretto&quot;);</span>
+<span class="fc" id="L86">		    put(&quot;age&quot;,&quot;33&quot;);</span>
+<span class="fc" id="L87">		    put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		}}));
+		
+		// Consulting Model		
+<span class="fc" id="L91">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L92">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/api/{model}/{id}&quot;, String.class, model.getName(), metaModel.getId());</span>
+<span class="fc" id="L93">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());</span>
+<span class="fc" id="L94">		System.out.println(response);</span>
+<span class="fc" id="L95">	}</span>
+	
+	@Test
+	@DisplayName(&quot;02 .01- Get one data by model by id - Not Found&quot;)
+	public void test0201getByModelByIdNotFound() {
+		// Clear Model and MetaModel
+<span class="fc" id="L101">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+<span class="fc" id="L102">		this.metaModelService.deleteByModel(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L104">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L105">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L106">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L107">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+
+		// Consulting Model		
+<span class="fc" id="L110">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L111">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/api/{model}/{id}&quot;, String.class, model.getName(), -1);</span>
+<span class="fc" id="L112">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());</span>
+<span class="fc" id="L113">		System.out.println(response);</span>
+<span class="fc" id="L114">	}</span>
+	
+	@Test
+	@DisplayName(&quot;05 - Create new meta model&quot;)
+	public void test0500createNewMetaModel() {
+		// Clear Model and MetaModel
+<span class="fc" id="L120">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+<span class="fc" id="L121">		this.metaModelService.deleteByModel(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L123">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L124">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L125">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L126">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		// Creating Meta Data Model
+<span class="fc" id="L128">		Map&lt;String, String&gt; fields = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L129">		fields.put(&quot;name&quot;,&quot;Fabiano Chiaretto&quot;);</span>
+<span class="fc" id="L130">		fields.put(&quot;age&quot;,&quot;33&quot;);</span>
+<span class="fc" id="L131">		fields.put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		
+<span class="fc" id="L133">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L134">		ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(&quot;/api/{model}/&quot;, fields, String.class, model.getName());</span>
+<span class="fc" id="L135">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.CREATED.value());</span>
+<span class="fc" id="L136">	}</span>
+	
+	@Test
+	@DisplayName(&quot;05.01 - Create new meta model invalid&quot;)
+	public void test0501createNewMetaModelInvalid() {
+		// Clear Model and MetaModel
+<span class="fc" id="L142">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+<span class="fc" id="L143">		this.metaModelService.deleteByModel(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L145">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L146">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L147">				new Field(&quot;weight&quot;, &quot;float&quot;),</span>
+<span class="fc" id="L148">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L149">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		// Creating Meta Data Model
+<span class="fc" id="L151">		Map&lt;String, String&gt; metaModelFields = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L152">		metaModelFields.put(&quot;name&quot;,&quot;Fabiano Chiaretto&quot;);</span>
+<span class="fc" id="L153">		metaModelFields.put(&quot;weight&quot;,&quot;100.5&quot;);</span>
+<span class="fc" id="L154">		metaModelFields.put(&quot;age&quot;,&quot;not informed&quot;);</span>
+<span class="fc" id="L155">		metaModelFields.put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		
+<span class="fc" id="L157">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L158">		ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(&quot;/api/{model}/&quot;, metaModelFields, String.class, model.getName());</span>
+<span class="fc" id="L159">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());</span>
+<span class="fc" id="L160">	}</span>
+	
+	@Test
+	@DisplayName(&quot;05.02 - Create new meta model with model no existent&quot;)
+	public void test0501createNewMetaModelWithModelNoExistent() {
+		// Clear Model and MetaModel
+<span class="fc" id="L166">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+<span class="fc" id="L167">		this.metaModelService.deleteByModel(&quot;customer&quot;);</span>
+
+		// Nonexistent model
+<span class="fc" id="L170">		String nonexistentModel = &quot;xptomodel&quot;;</span>
+		
+		// Creating Meta Data Model
+<span class="fc" id="L173">		Map&lt;String, String&gt; metaModelFields = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L174">		metaModelFields.put(&quot;name&quot;,&quot;Fabiano Chiaretto&quot;);</span>
+<span class="fc" id="L175">		metaModelFields.put(&quot;age&quot;,&quot;not informed&quot;);</span>
+<span class="fc" id="L176">		metaModelFields.put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		
+<span class="fc" id="L178">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L179">		ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(&quot;/api/{model}/&quot;, metaModelFields, String.class, nonexistentModel);</span>
+<span class="fc" id="L180">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());</span>
+<span class="fc" id="L181">	}</span>
+	
+	@Test
+	@DisplayName(&quot;06 - Edit meta model&quot;)
+	public void test0600UpdatewModel() {
+		// Clear Model and MetaModel
+<span class="fc" id="L187">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+<span class="fc" id="L188">		this.metaModelService.deleteByModel(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L190">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L191">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L192">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L193">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		// Creating Meta Data Model
+<span class="fc" id="L195">		MetaModel metaModel= this.metaModelService.insert(new MetaModel(null, &quot;customer&quot;, new HashMap&lt;String, String&gt;() {</span>
+			private static final long serialVersionUID = 1L;
+		{
+<span class="fc" id="L198">		    put(&quot;name&quot;,&quot;Fabiano Chiaretto&quot;);</span>
+<span class="fc" id="L199">		    put(&quot;age&quot;,&quot;33&quot;);</span>
+<span class="fc" id="L200">		    put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		}}));
+		
+		// Creating Meta Data Model
+<span class="fc" id="L204">		Map&lt;String, String&gt; metaModelFieldsUpdate = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L205">		metaModelFieldsUpdate.put(&quot;name&quot;,&quot;Fabiano Chiaretto Fernandes&quot;);</span>
+<span class="fc" id="L206">		metaModelFieldsUpdate.put(&quot;age&quot;,&quot;33&quot;);</span>
+<span class="fc" id="L207">		metaModelFieldsUpdate.put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		
+<span class="fc" id="L209">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L210">		HttpEntity&lt;Map&lt;String, String&gt;&gt; m = new HttpEntity&lt;Map&lt;String, String&gt;&gt;(metaModelFieldsUpdate);</span>
+<span class="fc" id="L211">		ResponseEntity&lt;String&gt; response = restTemplate.exchange(&quot;/api/{model}/{id}&quot;, HttpMethod.PUT, m, String.class, model.getName(), metaModel.getId());</span>
+<span class="fc" id="L212">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());</span>
+<span class="fc" id="L213">	}</span>
+	
+	@Test
+	@DisplayName(&quot;06.01 - Edit model Invalid&quot;)
+	public void test0601UpdatewModelInvalid() {
+		// Clear Model and MetaModel
+<span class="fc" id="L219">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+<span class="fc" id="L220">		this.metaModelService.deleteByModel(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L222">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L223">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L224">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L225">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		// Creating Meta Data Model
+<span class="fc" id="L227">		MetaModel metaModel= this.metaModelService.insert(new MetaModel(null, &quot;customer&quot;, new HashMap&lt;String, String&gt;() {</span>
+			private static final long serialVersionUID = 1L;
+		{
+<span class="fc" id="L230">		    put(&quot;name&quot;,&quot;Fabiano Chiaretto&quot;);</span>
+<span class="fc" id="L231">		    put(&quot;age&quot;,&quot;33&quot;);</span>
+<span class="fc" id="L232">		    put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		}}));
+		
+		// Creating Meta Data Model
+<span class="fc" id="L236">		Map&lt;String, String&gt; metaModelFieldsUpdate = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L237">		metaModelFieldsUpdate.put(&quot;name&quot;,&quot;Fabiano Chiaretto Fernandes&quot;);</span>
+<span class="fc" id="L238">		metaModelFieldsUpdate.put(&quot;age&quot;,&quot;NOT INFORMED&quot;);</span>
+<span class="fc" id="L239">		metaModelFieldsUpdate.put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		
+<span class="fc" id="L241">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L242">		HttpEntity&lt;Map&lt;String, String&gt;&gt; m = new HttpEntity&lt;Map&lt;String, String&gt;&gt;(metaModelFieldsUpdate);</span>
+<span class="fc" id="L243">		ResponseEntity&lt;String&gt; response = restTemplate.exchange(&quot;/api/{model}/{id}&quot;, HttpMethod.PUT, m, String.class, model.getName(), metaModel.getId());</span>
+<span class="fc" id="L244">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());</span>
+<span class="fc" id="L245">	}</span>
+	
+	@Test
+	@DisplayName(&quot;07 - Delete meta model&quot;)
+	public void test0700DeletewModel() {
+		// Clear Model
+<span class="fc" id="L251">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L253">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L254">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L255">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L256">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		// Creating Meta Data Model
+<span class="fc" id="L258">		MetaModel metaModel= this.metaModelService.insert(new MetaModel(null, &quot;customer&quot;, new HashMap&lt;String, String&gt;() {</span>
+			private static final long serialVersionUID = 1L;
+		{
+<span class="fc" id="L261">		    put(&quot;name&quot;,&quot;Fabiano Chiaretto&quot;);</span>
+<span class="fc" id="L262">		    put(&quot;age&quot;,&quot;33&quot;);</span>
+<span class="fc" id="L263">		    put(&quot;email&quot;,&quot;chiaretto@gmail.com&quot;);</span>
+		}}));
+		
+<span class="fc" id="L266">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L267">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/api/{model}/{id}&quot;, String.class, model.getName(), metaModel.getId());</span>
+<span class="fc" id="L268">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());</span>
+		
+<span class="fc" id="L270">		restTemplate.delete(&quot;/api/{model}/{id}&quot;, model.getName(), metaModel.getId());</span>
+		
+<span class="fc" id="L272">		response = restTemplate.getForEntity(&quot;/api/{model}/{id}&quot;, String.class, model.getName(), metaModel.getId());</span>
+<span class="fc" id="L273">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());</span>
+<span class="fc" id="L274">	}</span>
+	
+	@Test
+	@DisplayName(&quot;07.01 - Delete meta model NotFound&quot;)
+	public void test0701DeletewModelNotFound() {
+		// Clear Model
+<span class="fc" id="L280">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L282">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L283">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L284">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L285">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+
+<span class="fc" id="L287">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L288">		restTemplate.delete(&quot;/api/{model}/{id}&quot;, model.getName(), -1);</span>
+		
+<span class="fc" id="L290">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/api/{model}/{id}&quot;, String.class, model.getName(), -1);</span>
+<span class="fc" id="L291">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());</span>
+<span class="fc" id="L292">	}</span>
+	
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>XyInc (20 de nov de 2019 03:54:50)</div></body></html>

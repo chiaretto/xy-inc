@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MetaModelServiceImpl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">XyInc (20 de nov de 2019 03:54:50)</a> &gt; <a href="../../index.html" class="el_group">XyInc</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.chiaretto.xyinc.api.services.impl</a> &gt; <span class="el_source">MetaModelServiceImpl.java</span></div><h1>MetaModelServiceImpl.java</h1><pre class="source lang-java linenums">package com.chiaretto.xyinc.api.services.impl;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.chiaretto.xyinc.api.documents.MetaModel;
+import com.chiaretto.xyinc.api.repositories.MetaModelRepository;
+import com.chiaretto.xyinc.api.services.MetaModelService;
+
+@Service
+public class MetaModelServiceImpl implements MetaModelService {
+	
+	private MetaModelRepository metaModelRepository;
+
+<span class="fc" id="L17">	public MetaModelServiceImpl(MetaModelRepository metaModelRepository) {</span>
+<span class="fc" id="L18">		this.metaModelRepository = metaModelRepository;</span>
+<span class="fc" id="L19">	}</span>
+	
+	@Override
+	public List&lt;MetaModel&gt; getAll(String model) {
+<span class="fc" id="L23">		return this.metaModelRepository.findByModel(model);</span>
+	}
+
+	@Override
+	public Optional&lt;MetaModel&gt; getById(String model, String id) {
+<span class="fc" id="L28">		return this.metaModelRepository.findByModelAndId(model, id);</span>
+	}
+
+	@Override
+	public MetaModel insert(MetaModel metaModel) {
+<span class="fc" id="L33">		return this.metaModelRepository.save(metaModel);</span>
+	}
+
+	@Override
+	public MetaModel update(MetaModel metaModel) {
+<span class="fc" id="L38">		return this.metaModelRepository.save(metaModel);</span>
+	}
+
+	@Override
+	public void delete(String model, String id) {
+<span class="fc" id="L43">		this.metaModelRepository.deleteByModelAndId(model, id);</span>
+<span class="fc" id="L44">	}</span>
+	
+	@Override
+	public void deleteByModel(String model) {
+<span class="fc" id="L48">		this.metaModelRepository.deleteByModel(model);</span>
+<span class="fc" id="L49">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>XyInc (20 de nov de 2019 03:54:50)</div></body></html>

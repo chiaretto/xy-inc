@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ValidationMetaModel.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">XyInc (20 de nov de 2019 03:54:50)</a> &gt; <a href="../../index.html" class="el_group">XyInc</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.chiaretto.xyinc.api.validations</a> &gt; <span class="el_source">ValidationMetaModel.java</span></div><h1>ValidationMetaModel.java</h1><pre class="source lang-java linenums">package com.chiaretto.xyinc.api.validations;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import com.chiaretto.xyinc.api.documents.Field;
+import com.chiaretto.xyinc.api.documents.Model;
+
+<span class="fc" id="L13">public class ValidationMetaModel {</span>
+
+	private List&lt;String&gt; errors;
+	
+	private Map&lt;String, String&gt; sanitizedFields;
+
+	public Boolean hasErrors(Optional&lt;Model&gt; modelDoc, Map&lt;String, String&gt; fieldsMetaModel) {
+<span class="fc" id="L20">		this.errors = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L21">		this.sanitizedFields = new HashMap&lt;&gt;();</span>
+		
+<span class="fc bfc" id="L23" title="All 2 branches covered.">		if (modelDoc.isPresent()) {</span>
+<span class="fc" id="L24">			Set&lt;Field&gt; fieldsModel = modelDoc.get().getFields();</span>
+			// Sanitize
+<span class="fc" id="L26">			fieldsMetaModel.forEach((k, v) -&gt; {</span>
+<span class="fc" id="L27">				fieldsModel.forEach(fieldModel -&gt; {</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">					if (k.toString().equalsIgnoreCase(fieldModel.getName().toString())) {</span>
+<span class="fc" id="L29">						this.sanitizedFields.put(k, v);</span>
+					}
+<span class="fc" id="L31">				});</span>
+<span class="fc" id="L32">			});</span>
+			// Validate
+<span class="fc" id="L34">			this.sanitizedFields.forEach((k, v) -&gt; {</span>
+<span class="fc" id="L35">				fieldsModel.forEach(fieldModel -&gt; {</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">					if (k.toString().equalsIgnoreCase(fieldModel.getName().toString())) {</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">						if (!this.getType(v.toString()).equalsIgnoreCase(fieldModel.getType().toString())) {</span>
+<span class="fc" id="L38">							this.errors.add(&quot;The field &quot; + k + &quot; must be a &quot; + fieldModel.getType().toString() + &quot; but is &quot; + this.getType(v.toString()));</span>
+						}
+					}
+<span class="fc" id="L41">				});</span>
+<span class="fc" id="L42">			});</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">			if (this.errors.size() &gt; 0) {</span>
+<span class="fc" id="L44">				return true;</span>
+			} else {
+<span class="fc" id="L46">				return false;</span>
+			}
+		} else {
+<span class="fc" id="L49">			this.errors.add(&quot;Model not found&quot;);</span>
+<span class="fc" id="L50">			return true;	</span>
+		}
+	}
+	
+	public List&lt;String&gt; getErrors() {
+<span class="fc" id="L55">		return this.errors;</span>
+	}
+	
+	public Map&lt;String, String&gt; getSanitizedFields() {
+<span class="fc" id="L59">		return this.sanitizedFields;</span>
+	}
+	
+	/**
+	 * Basic type identify
+	 * @param value
+	 * @return
+	 */
+	public String getType(String value) {
+		try {
+<span class="fc" id="L69">			Integer.parseInt(value);</span>
+<span class="fc" id="L70">			return &quot;integer&quot;;</span>
+<span class="fc" id="L71">		} catch (Exception e) {}</span>
+		try {
+<span class="fc" id="L73">			Float.parseFloat(value);</span>
+<span class="fc" id="L74">			return &quot;float&quot;;</span>
+<span class="fc" id="L75">		} catch (Exception e) {}</span>
+<span class="fc" id="L76">		return &quot;string&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>XyInc (20 de nov de 2019 03:54:50)</div></body></html>

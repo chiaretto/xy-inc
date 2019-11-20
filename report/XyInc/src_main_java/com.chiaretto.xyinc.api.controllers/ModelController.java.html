@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ModelController.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">XyInc (20 de nov de 2019 03:54:50)</a> &gt; <a href="../../index.html" class="el_group">XyInc</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.chiaretto.xyinc.api.controllers</a> &gt; <span class="el_source">ModelController.java</span></div><h1>ModelController.java</h1><pre class="source lang-java linenums">package com.chiaretto.xyinc.api.controllers;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import javax.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.chiaretto.xyinc.api.documents.Model;
+import com.chiaretto.xyinc.api.responses.Response;
+import com.chiaretto.xyinc.api.services.ModelService;
+import org.springframework.dao.DuplicateKeyException;
+
+import io.swagger.annotations.ApiOperation;
+
+@Secured(&quot;ROLE_ADMIN&quot;)
+@RestController
+@RequestMapping(path = &quot;/admin/model&quot;)
+public class ModelController {
+
+	private final ModelService modelService;
+	
+<span class="fc" id="L39">	ModelController(ModelService modelService) {</span>
+<span class="fc" id="L40">		this.modelService = modelService;</span>
+<span class="fc" id="L41">	}</span>
+	
+	@ApiOperation(value = &quot;List all models&quot;)
+	@GetMapping
+	public ResponseEntity&lt;Response&lt;List&lt;Model&gt;&gt;&gt; getAll() {
+<span class="fc" id="L46">		return ResponseEntity.ok(new Response&lt;List&lt;Model&gt;&gt;(this.modelService.getAll()));</span>
+	}
+	
+	@ApiOperation(value = &quot;Get a model by id&quot;)
+	@GetMapping(path = &quot;/{id}&quot;)
+	public ResponseEntity&lt;Response&lt;Optional&lt;Model&gt;&gt;&gt; getById(@PathVariable String id) {
+<span class="fc" id="L52">		Optional&lt;Model&gt; model = this.modelService.getById(id);</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">		if (model.isPresent()) {</span>
+<span class="fc" id="L54">			return ResponseEntity.ok(new Response&lt;Optional&lt;Model&gt;&gt;(model));	</span>
+		} 
+<span class="fc" id="L56">		return ResponseEntity.notFound().build();</span>
+	}
+	
+	@ApiOperation(value = &quot;Create a new model&quot;)
+	@PostMapping
+	public ResponseEntity&lt;Response&lt;Model&gt;&gt; insert(@Valid @RequestBody Model model, BindingResult result) throws URISyntaxException {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		if (result.hasErrors()) {</span>
+<span class="fc" id="L63">			List&lt;String&gt; erros = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L64">			result.getAllErrors().forEach(erro -&gt; erros.add(erro.getDefaultMessage()));</span>
+<span class="fc" id="L65">			return ResponseEntity.badRequest().body(new Response&lt;Model&gt;(erros));</span>
+		}
+		try {
+<span class="fc" id="L68">			Model newModel = this.modelService.insert(model);</span>
+<span class="fc" id="L69">			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path(&quot;/{id}&quot;).buildAndExpand(newModel.getId()).toUri();</span>
+<span class="fc" id="L70">			return ResponseEntity.created(location).body(new Response&lt;Model&gt;(newModel));</span>
+<span class="fc" id="L71">		} catch (DuplicateKeyException e) {</span>
+<span class="fc" id="L72">			List&lt;String&gt; erros = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L73">			erros.add(e.getMessage());</span>
+<span class="fc" id="L74">			return ResponseEntity.status(HttpStatus.CONFLICT).body(new Response&lt;Model&gt;(erros));</span>
+		}
+	}
+	
+	@ApiOperation(value = &quot;Edit a model by id&quot;)
+	@PutMapping(path = &quot;/{id}&quot;)
+	public ResponseEntity&lt;Response&lt;Model&gt;&gt; update(@PathVariable(name = &quot;id&quot;) String id, @Valid @RequestBody Model model, BindingResult result) {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		if (result.hasErrors()) {</span>
+<span class="fc" id="L82">			List&lt;String&gt; erros = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L83">			result.getAllErrors().forEach(erro -&gt; erros.add(erro.getDefaultMessage()));</span>
+<span class="fc" id="L84">			return ResponseEntity.badRequest().body(new Response&lt;Model&gt;(erros));</span>
+		}
+<span class="fc" id="L86">		model.setId(id);</span>
+<span class="fc" id="L87">		return ResponseEntity.ok(new Response&lt;Model&gt;(this.modelService.update(model)));</span>
+	}
+	
+	@ApiOperation(value = &quot;Delete a model&quot;)
+	@DeleteMapping(path = &quot;/{id}&quot;)
+	public ResponseEntity&lt;Response&lt;Integer&gt;&gt; delete(@PathVariable String id) {
+<span class="fc" id="L93">		Optional&lt;Model&gt; model = this.modelService.getById(id);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">		if (model.isPresent()) {</span>
+<span class="fc" id="L95">			this.modelService.delete(id);</span>
+<span class="fc" id="L96">			return ResponseEntity.noContent().build();	</span>
+		} 
+<span class="fc" id="L98">		return ResponseEntity.notFound().build();			</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>XyInc (20 de nov de 2019 03:54:50)</div></body></html>

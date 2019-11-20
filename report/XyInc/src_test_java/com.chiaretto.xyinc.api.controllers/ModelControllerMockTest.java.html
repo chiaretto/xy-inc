@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ModelControllerMockTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">XyInc (20 de nov de 2019 03:54:50)</a> &gt; <a href="../../index.html" class="el_group">XyInc</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.chiaretto.xyinc.api.controllers</a> &gt; <span class="el_source">ModelControllerMockTest.java</span></div><h1>ModelControllerMockTest.java</h1><pre class="source lang-java linenums">package com.chiaretto.xyinc.api.controllers;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.chiaretto.xyinc.api.documents.Field;
+import com.chiaretto.xyinc.api.documents.Model;
+import com.chiaretto.xyinc.api.responses.Response;
+
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.Alphanumeric.class)
+<span class="fc" id="L43">public class ModelControllerMockTest {</span>
+	
+	private MockMvc mockMvc;
+	
+	@InjectMocks
+	private ModelController modelController;
+//	
+//	@Mock
+//	private ModelController modelControllerMock;
+	
+	@Autowired
+	@MockBean
+	private ModelController modelControllerMock;
+	
+//	@MockBean
+//	private ModelController modelControllerMock2;
+	
+	@Autowired
+	public WebApplicationContext context;
+	
+	@Autowired
+    FilterChainProxy springSecurityFilterChain;
+	
+	@BeforeEach
+	public void setup() {
+<span class="fc" id="L68">		MockitoAnnotations.initMocks(this);</span>
+	
+<span class="fc" id="L70">		this.mockMvc = MockMvcBuilders</span>
+<span class="fc" id="L71">				.webAppContextSetup(this.context)</span>
+<span class="fc" id="L72">				.addFilters(springSecurityFilterChain)</span>
+<span class="fc" id="L73">				.defaultRequest(get(&quot;/**&quot;).with(httpBasic(&quot;admin&quot;, &quot;admin123&quot;)))</span>
+<span class="fc" id="L74">				.build();</span>
+<span class="fc" id="L75">	}</span>
+	
+	@Test
+	@DisplayName(&quot;List all models - Unauthorized&quot;)
+	public void test01getAllUnauthorized() throws Exception {
+<span class="fc" id="L80">		when(modelControllerMock.getAll()).thenReturn(ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).build());</span>
+		
+<span class="fc" id="L82">		this.mockMvc.perform(get(&quot;/admin/model&quot;).with(httpBasic(&quot;none&quot;, &quot;none&quot;)))</span>
+<span class="fc" id="L83">		.andDo(MockMvcResultHandlers.print())</span>
+<span class="fc" id="L84">		.andExpect(status().isUnauthorized())</span>
+<span class="fc" id="L85">		.andReturn();</span>
+<span class="fc" id="L86">	}</span>
+	
+	@Test
+	@DisplayName(&quot;List all models - Forbiden&quot;)
+	public void test02listAllForbidden() throws Exception {
+<span class="fc" id="L91">		when(modelControllerMock.getAll()).thenReturn(ResponseEntity.status(HttpStatus.FORBIDDEN.value()).build());</span>
+		
+<span class="fc" id="L93">		this.mockMvc.perform(get(&quot;/admin/model&quot;).with(httpBasic(&quot;user&quot;, &quot;user123&quot;)))</span>
+<span class="fc" id="L94">		.andDo(MockMvcResultHandlers.print())</span>
+<span class="fc" id="L95">		.andExpect(status().isForbidden())</span>
+<span class="fc" id="L96">		.andReturn();</span>
+<span class="fc" id="L97">	}</span>
+	
+	@Test
+	@DisplayName(&quot;List all models&quot;)
+	public void test03listAll() throws Exception {
+<span class="fc" id="L102">		List&lt;Model&gt; mockModels = Arrays.asList(</span>
+<span class="fc" id="L103">				new Model(null, &quot;product&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L104">						new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L105">						new Field(&quot;price&quot;, &quot;float&quot;),</span>
+<span class="fc" id="L106">						new Field(&quot;qty&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L107">						new Field(&quot;category&quot;, &quot;string&quot;)))),</span>
+<span class="fc" id="L108">				new Model(null, &quot;costumer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L109">						new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L110">						new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L111">						new Field(&quot;email&quot;, &quot;string&quot;))))</span>
+				);
+		
+<span class="fc" id="L114">		when(modelControllerMock.getAll()).thenReturn(ResponseEntity.ok(new Response&lt;List&lt;Model&gt;&gt;(mockModels)));</span>
+		
+<span class="fc" id="L116">		this.mockMvc.perform(get(&quot;/admin/model&quot;))</span>
+<span class="fc" id="L117">		.andDo(MockMvcResultHandlers.print())</span>
+<span class="fc" id="L118">		.andExpect(status().isOk())</span>
+<span class="fc" id="L119">		.andReturn();</span>
+<span class="fc" id="L120">	}</span>
+	
+
+	@Test
+	@DisplayName(&quot;Get By Id&quot;)
+	public void test04getById() throws Exception {
+<span class="fc" id="L126">		Optional&lt;Model&gt; modelMock = Optional.of(new Model(&quot;1&quot;, &quot;product&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L127">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L128">				new Field(&quot;price&quot;, &quot;float&quot;),</span>
+<span class="fc" id="L129">				new Field(&quot;qty&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L130">				new Field(&quot;category&quot;, &quot;string&quot;)))));</span>
+		
+<span class="fc" id="L132">		when(modelControllerMock.getById(&quot;1&quot;)).thenReturn(ResponseEntity.ok(new Response&lt;Optional&lt;Model&gt;&gt;(modelMock)));	</span>
+		
+<span class="fc" id="L134">		this.mockMvc.perform(get(&quot;/admin/model/1&quot;))</span>
+<span class="fc" id="L135">		.andDo(MockMvcResultHandlers.print())</span>
+<span class="fc" id="L136">		.andExpect(status().isOk())</span>
+<span class="fc" id="L137">		.andReturn();</span>
+<span class="fc" id="L138">	}</span>
+	
+	
+//	@Test
+//	public void test05post() throws Exception {
+//		Model modelMockPost = new Model(&quot;product&quot;, new HashSet&lt;Field&gt;(Arrays.asList(
+//				new Field(&quot;name&quot;, &quot;string&quot;),
+//				new Field(&quot;price&quot;, &quot;float&quot;),
+//				new Field(&quot;qty&quot;, &quot;integer&quot;),
+//				new Field(&quot;category&quot;, &quot;string&quot;))));
+//		
+//
+//		Optional&lt;Model&gt; modelMock = Optional.of(new Model(&quot;1&quot;, &quot;product&quot;, new HashSet&lt;Field&gt;(Arrays.asList(
+//				new Field(&quot;name&quot;, &quot;string&quot;),
+//				new Field(&quot;price&quot;, &quot;float&quot;),
+//				new Field(&quot;qty&quot;, &quot;integer&quot;),
+//				new Field(&quot;category&quot;, &quot;string&quot;)))));
+		
+//		when(modelControllerMock.insert(modelMockPost, null)).thenReturn(ResponseEntity.ok(new Response&lt;Optional&lt;Model&gt;&gt;(modelMock)));	
+//		
+//		String content = &quot;{\n&quot; + 
+//				&quot;	\&quot;name\&quot;: \&quot;product\&quot;,\n&quot; + 
+//				&quot;	\&quot;fields\&quot;: [\n&quot; + 
+//				&quot;		{\n&quot; + 
+//				&quot;			\&quot;name\&quot;:\&quot;name\&quot;,\n&quot; + 
+//				&quot;			\&quot;type\&quot;: \&quot;string\&quot;\n&quot; + 
+//				&quot;		},\n&quot; + 
+//				&quot;		{\n&quot; + 
+//				&quot;			\&quot;name\&quot;:\&quot;price\&quot;,\n&quot; + 
+//				&quot;			\&quot;type\&quot;: \&quot;float\&quot;\n&quot; + 
+//				&quot;		},\n&quot; + 
+//				&quot;		{\n&quot; + 
+//				&quot;			\&quot;name\&quot;:\&quot;qty\&quot;,\n&quot; + 
+//				&quot;			\&quot;type\&quot;: \&quot;integer\&quot;\n&quot; + 
+//				&quot;		},\n&quot; + 
+//				&quot;		{\n&quot; + 
+//				&quot;			\&quot;name\&quot;:\&quot;category\&quot;,\n&quot; + 
+//				&quot;			\&quot;type\&quot;: \&quot;string\&quot;\n&quot; + 
+//				&quot;		}\n&quot; + 
+//				&quot;		]\n&quot; + 
+//				&quot;}&quot;;
+//		
+//		this.mockMvc.perform(post(&quot;/admin/model&quot;)
+//				.content(&quot;{\&quot;name\&quot;: \&quot;customer\&quot;}&quot;)
+//				.contentType(MediaType.APPLICATION_JSON)
+//				.with(httpBasic(&quot;admin&quot;, &quot;admin123&quot;)))
+//		.andDo(MockMvcResultHandlers.print())
+//		.andExpect(status().isCreated())
+//		.andReturn();
+//	}
+	
+	
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>XyInc (20 de nov de 2019 03:54:50)</div></body></html>

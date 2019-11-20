@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AppWebSecurityConfigurer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">XyInc (20 de nov de 2019 03:54:50)</a> &gt; <a href="../../index.html" class="el_group">XyInc</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.chiaretto.xyinc.api.configs</a> &gt; <span class="el_source">AppWebSecurityConfigurer.java</span></div><h1>AppWebSecurityConfigurer.java</h1><pre class="source lang-java linenums">package com.chiaretto.xyinc.api.configs;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
+<span class="fc" id="L17">public class AppWebSecurityConfigurer extends WebSecurityConfigurerAdapter {</span>
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+<span class="fc" id="L21">		http.csrf().disable()</span>
+<span class="fc" id="L22">		    .authorizeRequests()</span>
+<span class="fc" id="L23">			.anyRequest().authenticated()</span>
+<span class="fc" id="L24">			.and().httpBasic()</span>
+<span class="fc" id="L25">			.and().exceptionHandling().accessDeniedHandler((request, response, e) -&gt; </span>
+		    {
+<span class="fc" id="L27">		        response.setContentType(&quot;application/json;charset=UTF-8&quot;);</span>
+<span class="fc" id="L28">		        response.setStatus(HttpServletResponse.SC_FORBIDDEN);</span>
+<span class="fc" id="L29">		    })</span>
+<span class="fc" id="L30">			.and().sessionManagement()</span>
+<span class="fc" id="L31">            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);</span>
+<span class="fc" id="L32">	}</span>
+	
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+<span class="fc" id="L36">		auth.inMemoryAuthentication()</span>
+<span class="fc" id="L37">	      .withUser(&quot;user&quot;).password(&quot;{noop}user123&quot;).roles(&quot;USER&quot;)</span>
+<span class="fc" id="L38">	      .and()</span>
+<span class="fc" id="L39">	      .withUser(&quot;admin&quot;).password(&quot;{noop}admin123&quot;).roles(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L40">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>XyInc (20 de nov de 2019 03:54:50)</div></body></html>

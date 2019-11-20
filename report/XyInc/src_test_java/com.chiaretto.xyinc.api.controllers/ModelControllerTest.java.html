@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ModelControllerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">XyInc (20 de nov de 2019 03:54:50)</a> &gt; <a href="../../index.html" class="el_group">XyInc</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.chiaretto.xyinc.api.controllers</a> &gt; <span class="el_source">ModelControllerTest.java</span></div><h1>ModelControllerTest.java</h1><pre class="source lang-java linenums">package com.chiaretto.xyinc.api.controllers;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Arrays;
+import java.util.HashSet;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.chiaretto.xyinc.api.documents.Field;
+import com.chiaretto.xyinc.api.documents.Model;
+import com.chiaretto.xyinc.api.services.ModelService;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.Alphanumeric.class)
+<span class="fc" id="L27">public class ModelControllerTest {</span>
+	
+	@Autowired
+	private TestRestTemplate restTemplate;
+	
+	@Autowired
+	private ModelService modelService;
+	
+	@LocalServerPort
+	private int port;
+	
+	@Test
+	@DisplayName(&quot;01 - List all models&quot;)
+	public void test01getAll() {
+		// Clear Model
+<span class="fc" id="L42">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L44">		this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L45">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L46">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L47">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		
+<span class="fc" id="L49">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L50">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/admin/model&quot;, String.class);</span>
+<span class="fc" id="L51">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());</span>
+<span class="fc" id="L52">	}</span>
+	
+	@Test
+	@DisplayName(&quot;02 - Get all models is forbiden for that user&quot;)
+	public void test02getAllForbiden() {
+<span class="fc" id="L57">		restTemplate = restTemplate.withBasicAuth(&quot;user&quot;, &quot;user123&quot;);</span>
+<span class="fc" id="L58">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/admin/model&quot;, String.class);</span>
+<span class="fc" id="L59">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.FORBIDDEN.value());</span>
+<span class="fc" id="L60">	}</span>
+	
+	@Test
+	@DisplayName(&quot;03 - Get one model by id&quot;)
+	public void test03getById() {
+		// Clear Model
+<span class="fc" id="L66">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L68">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L69">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L70">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L71">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		
+		// Consulting Model		
+<span class="fc" id="L74">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L75">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/admin/model/{id}&quot;, String.class, model.getId());</span>
+<span class="fc" id="L76">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());</span>
+<span class="fc" id="L77">	}</span>
+	
+	@Test
+	@DisplayName(&quot;04 - Get one model by id not found&quot;)
+	public void test04getByIdNotFound() {
+<span class="fc" id="L82">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L83">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/admin/model/{id}&quot;, String.class, -1);</span>
+<span class="fc" id="L84">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());</span>
+<span class="fc" id="L85">	}</span>
+	
+	@Test
+	@DisplayName(&quot;05 - Create new model&quot;)
+	public void test0500createNewModel() {
+<span class="fc" id="L90">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		
+<span class="fc" id="L92">		Model model = new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L93">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L94">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L95">				new Field(&quot;email&quot;, &quot;string&quot;))));</span>
+		
+<span class="fc" id="L97">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L98">		ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(&quot;/admin/model&quot;, model, String.class);</span>
+<span class="fc" id="L99">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.CREATED.value());</span>
+<span class="fc" id="L100">	}</span>
+	
+	@Test
+	@DisplayName(&quot;05.01 - Create new model invalid&quot;)
+	public void test0501createNewModelInvalid() {
+<span class="fc" id="L105">		Model model = new Model(null, null, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L106">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L107">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L108">				new Field(&quot;email&quot;, &quot;string&quot;))));</span>
+		
+<span class="fc" id="L110">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L111">		ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(&quot;/admin/model&quot;, model, String.class);</span>
+<span class="fc" id="L112">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());</span>
+<span class="fc" id="L113">	}</span>
+	
+	@Test
+	@DisplayName(&quot;05.02 - Create new model duplicated&quot;)
+	public void test0502createNewModelDuplicated() {
+		// Clear Model
+<span class="fc" id="L119">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L121">		this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L122">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L123">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L124">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		
+<span class="fc" id="L126">		Model modelDuplicated = new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L127">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L128">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L129">				new Field(&quot;email&quot;, &quot;string&quot;))));</span>
+		
+<span class="fc" id="L131">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L132">		ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(&quot;/admin/model&quot;, modelDuplicated, String.class);</span>
+<span class="fc" id="L133">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.CONFLICT.value());</span>
+<span class="fc" id="L134">	}</span>
+	
+	@Test
+	@DisplayName(&quot;06 - Edit model&quot;)
+	public void test0600UpdatewModel() {
+		// Clear Model
+<span class="fc" id="L140">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+<span class="fc" id="L141">		this.modelService.deleteByName(&quot;customernew&quot;);</span>
+		// Creating model
+<span class="fc" id="L143">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L144">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L145">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L146">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		
+<span class="fc" id="L148">		Model modelUpdate = new Model(null, &quot;customernew&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L149">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L150">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L151">				new Field(&quot;email&quot;, &quot;string&quot;))));</span>
+		
+<span class="fc" id="L153">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+		
+<span class="fc" id="L155">		HttpEntity&lt;Model&gt; m = new HttpEntity&lt;Model&gt;(modelUpdate);</span>
+<span class="fc" id="L156">		ResponseEntity&lt;String&gt; response = restTemplate.exchange(&quot;/admin/model/{id}&quot;, HttpMethod.PUT, m, String.class, model.getId());</span>
+<span class="fc" id="L157">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());</span>
+<span class="fc" id="L158">	}</span>
+	
+	@Test
+	@DisplayName(&quot;06.01 - Edit model Invalid&quot;)
+	public void test0601UpdatewModelInvalid() {
+		// Clear Model
+<span class="fc" id="L164">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L166">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L167">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L168">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L169">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		
+<span class="fc" id="L171">		Model modelUpdate = new Model(null, null, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L172">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L173">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L174">				new Field(&quot;email&quot;, &quot;string&quot;))));</span>
+		
+<span class="fc" id="L176">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+		
+<span class="fc" id="L178">		HttpEntity&lt;Model&gt; m = new HttpEntity&lt;Model&gt;(modelUpdate);</span>
+<span class="fc" id="L179">		ResponseEntity&lt;String&gt; response = restTemplate.exchange(&quot;/admin/model/{id}&quot;, HttpMethod.PUT, m, String.class, model.getId());</span>
+<span class="fc" id="L180">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());</span>
+<span class="fc" id="L181">	}</span>
+	
+	@Test
+	@DisplayName(&quot;07 - Delete model&quot;)
+	public void test0700DeletewModel() {
+		// Clear Model
+<span class="fc" id="L187">		this.modelService.deleteByName(&quot;customer&quot;);</span>
+		// Creating model
+<span class="fc" id="L189">		Model model = this.modelService.insert(new Model(null, &quot;customer&quot;, new HashSet&lt;Field&gt;(Arrays.asList(</span>
+<span class="fc" id="L190">				new Field(&quot;name&quot;, &quot;string&quot;),</span>
+<span class="fc" id="L191">				new Field(&quot;age&quot;, &quot;integer&quot;),</span>
+<span class="fc" id="L192">				new Field(&quot;email&quot;, &quot;string&quot;)))));</span>
+		
+<span class="fc" id="L194">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L195">		restTemplate.delete(&quot;/admin/model/{id}&quot;, model.getId());</span>
+<span class="fc" id="L196">		ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(&quot;/admin/model/{id}&quot;, String.class, model.getId());</span>
+<span class="fc" id="L197">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());</span>
+<span class="fc" id="L198">	}</span>
+	
+	@Test
+	@DisplayName(&quot;07.01 - Delete model NotFound&quot;)
+	public void test0701DeletewModelNotFound() {
+<span class="fc" id="L203">		restTemplate = restTemplate.withBasicAuth(&quot;admin&quot;, &quot;admin123&quot;);</span>
+<span class="fc" id="L204">		HttpEntity&lt;String&gt; m = new HttpEntity&lt;String&gt;(&quot;&quot;);</span>
+<span class="fc" id="L205">		ResponseEntity&lt;String&gt; response = restTemplate.exchange(&quot;/admin/model/{id}&quot;, HttpMethod.DELETE, m, String.class, -1);</span>
+<span class="fc" id="L206">		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());</span>
+<span class="fc" id="L207">	}</span>
+	
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>XyInc (20 de nov de 2019 03:54:50)</div></body></html>

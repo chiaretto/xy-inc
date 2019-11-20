@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MetaModelController.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">XyInc (20 de nov de 2019 03:54:50)</a> &gt; <a href="../../index.html" class="el_group">XyInc</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.chiaretto.xyinc.api.controllers</a> &gt; <span class="el_source">MetaModelController.java</span></div><h1>MetaModelController.java</h1><pre class="source lang-java linenums">package com.chiaretto.xyinc.api.controllers;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.chiaretto.xyinc.api.documents.MetaModel;
+import com.chiaretto.xyinc.api.documents.Model;
+import com.chiaretto.xyinc.api.responses.Response;
+import com.chiaretto.xyinc.api.services.MetaModelService;
+import com.chiaretto.xyinc.api.services.ModelService;
+import com.chiaretto.xyinc.api.validations.ValidationMetaModel;
+
+import io.swagger.annotations.ApiOperation;
+
+@Secured(&quot;ROLE_USER&quot;)
+@RestController
+@RequestMapping(path = &quot;/api/{model}&quot;)
+public class MetaModelController {
+
+	private final MetaModelService metaModelService;
+	private final ModelService modelService;
+	
+<span class="fc" id="L39">	MetaModelController(MetaModelService metaModelService,</span>
+			ModelService modelService) {
+<span class="fc" id="L41">		this.metaModelService = metaModelService;</span>
+<span class="fc" id="L42">		this.modelService = modelService;</span>
+<span class="fc" id="L43">	}</span>
+	
+	@ApiOperation(value = &quot;List all data of model&quot;)
+	@GetMapping
+	public ResponseEntity&lt;Response&lt;List&lt;Map&lt;String, String&gt;&gt;&gt;&gt; getAll(@PathVariable(&quot;model&quot;) String model) {
+<span class="fc" id="L48">		List&lt;MetaModel&gt; listMetaModels = this.metaModelService.getAll(model);</span>
+<span class="fc" id="L49">		List&lt;Map&lt;String, String&gt;&gt; metaModels = new ArrayList&lt;Map&lt;String, String&gt;&gt;();</span>
+<span class="fc" id="L50">		listMetaModels.forEach(metaModel -&gt; {</span>
+<span class="fc" id="L51">			Map&lt;String, String&gt; metaData = metaModel.getFields();</span>
+<span class="fc" id="L52">			metaData.put(&quot;id&quot;, metaModel.getId());</span>
+<span class="fc" id="L53">			metaModels.add(metaData);</span>
+			
+<span class="fc" id="L55">		});</span>
+<span class="fc" id="L56">		return ResponseEntity.ok(new Response&lt;List&lt;Map&lt;String, String&gt;&gt;&gt;(metaModels));</span>
+	}
+	
+	@ApiOperation(value = &quot;Get a data of model by id&quot;)
+	@GetMapping(path = &quot;/{id}&quot;)
+	public ResponseEntity&lt;Response&lt;Map&lt;String, String&gt;&gt;&gt; getById(@PathVariable(&quot;model&quot;) String model, @PathVariable String id) {
+<span class="fc" id="L62">		Optional&lt;MetaModel&gt; metaModel = this.metaModelService.getById(model, id);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">		if (metaModel.isPresent()) {</span>
+<span class="fc" id="L64">			Map&lt;String, String&gt; metaData = metaModel.get().getFields();</span>
+<span class="fc" id="L65">			metaData.put(&quot;id&quot;, metaModel.get().getId());</span>
+<span class="fc" id="L66">			return ResponseEntity.ok(new Response&lt;Map&lt;String, String&gt;&gt;(metaData));	</span>
+		} 
+<span class="fc" id="L68">		return ResponseEntity.notFound().build();</span>
+	}
+	
+	@ApiOperation(value = &quot;Create a new data for model&quot;)
+	@PostMapping
+	public ResponseEntity&lt;Response&lt;MetaModel&gt;&gt; insert(@PathVariable(&quot;model&quot;) String model, @RequestBody Map&lt;String, String&gt; fields, MetaModel metaModel, ValidationMetaModel validationMetaModel) throws URISyntaxException {
+<span class="fc" id="L74">		metaModel.setFields(fields);</span>
+<span class="fc" id="L75">		Optional&lt;Model&gt; modelDoc = this.modelService.getByName(model);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">		if (validationMetaModel.hasErrors(modelDoc, fields)) {</span>
+<span class="fc" id="L77">			return ResponseEntity.badRequest().body(new Response&lt;MetaModel&gt;(validationMetaModel.getErrors()));</span>
+		}
+<span class="fc" id="L79">		metaModel.setFields(validationMetaModel.getSanitizedFields());</span>
+<span class="fc" id="L80">		MetaModel newMetaModel = this.metaModelService.insert(metaModel);</span>
+<span class="fc" id="L81">		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path(&quot;/{id}&quot;).buildAndExpand(newMetaModel.getId()).toUri();</span>
+<span class="fc" id="L82">		return ResponseEntity.created(location).body(new Response&lt;MetaModel&gt;(newMetaModel));</span>
+	}
+	
+	@ApiOperation(value = &quot;Edit data for model by id&quot;)
+	@PutMapping(path = &quot;/{id}&quot;)
+	public ResponseEntity&lt;Response&lt;MetaModel&gt;&gt; update(@PathVariable(&quot;model&quot;) String model, @PathVariable(&quot;id&quot;) String id, @RequestBody Map&lt;String, String&gt; fields, MetaModel metaModel, ValidationMetaModel validationMetaModel) {
+<span class="fc" id="L88">		metaModel.setFields(fields);</span>
+<span class="fc" id="L89">		metaModel.setId(id);</span>
+<span class="fc" id="L90">		Optional&lt;Model&gt; modelDoc = this.modelService.getByName(model);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">		if (validationMetaModel.hasErrors(modelDoc, fields)) {</span>
+<span class="fc" id="L92">			return ResponseEntity.badRequest().body(new Response&lt;MetaModel&gt;(validationMetaModel.getErrors()));</span>
+		}
+<span class="fc" id="L94">		metaModel.setFields(validationMetaModel.getSanitizedFields());</span>
+<span class="fc" id="L95">		return ResponseEntity.ok(new Response&lt;MetaModel&gt;(this.metaModelService.update(metaModel)));</span>
+	}
+	
+	@ApiOperation(value = &quot;Delete data of model&quot;)
+	@DeleteMapping(path = &quot;/{id}&quot;)
+	public ResponseEntity&lt;Response&lt;Integer&gt;&gt; delete(@PathVariable(&quot;model&quot;) String model, @PathVariable(&quot;id&quot;) String id) {
+<span class="fc" id="L101">		Optional&lt;MetaModel&gt; metaModel = this.metaModelService.getById(model, id);</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">		if (metaModel.isPresent()) {</span>
+<span class="fc" id="L103">			this.metaModelService.delete(model, id);</span>
+<span class="fc" id="L104">			return ResponseEntity.noContent().build();	</span>
+		} 
+<span class="fc" id="L106">		return ResponseEntity.notFound().build();			</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>XyInc (20 de nov de 2019 03:54:50)</div></body></html>
