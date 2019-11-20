@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/chiaretto/xy-inc/branch/master/graph/badge.svg?token=mvBT1vyowK)](https://codecov.io/gh/chiaretto/xy-inc)
+
 # XYInc
 
 Meta Data Management System
