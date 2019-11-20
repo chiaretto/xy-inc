@@ -1,5 +1,9 @@
 # CodeCoverage
 
+Full report
+```
+$ xyinc/report/index.html
+```
 ![](https://github.com/chiaretto/xy-inc/blob/master/docs/codecoverade.png?raw=true)
 
 [![codecov](https://codecov.io/gh/chiaretto/xy-inc/branch/master/graph/badge.svg?token=mvBT1vyowK)](https://codecov.io/gh/chiaretto/xy-inc)
