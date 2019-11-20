@@ -1,195 +1,210 @@
 package com.chiaretto.xyinc.api.controllers;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.FilterChainProxy;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.chiaretto.xyinc.api.documents.Field;
 import com.chiaretto.xyinc.api.documents.Model;
-import com.chiaretto.xyinc.api.responses.Response;
-import com.google.common.base.Optional;
+import com.chiaretto.xyinc.api.services.ModelService;
 
-
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.Alphanumeric.class)
 public class ModelControllerTest {
 	
-	private MockMvc mockMvc;
-	
-	@InjectMocks
-	private ModelController modelController;
-	
-	@Mock
-	private ModelController modelControllerMock;
+	@Autowired
+	private TestRestTemplate restTemplate;
 	
 	@Autowired
-	public WebApplicationContext context;
+	private ModelService modelService;
 	
-	@Autowired
-    FilterChainProxy springSecurityFilterChain;
-	
-	@BeforeEach
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
-	
-		this.mockMvc = MockMvcBuilders
-				.webAppContextSetup(this.context)
-				.addFilters(springSecurityFilterChain)
-				.build();
-	}
+	@LocalServerPort
+	private int port;
 	
 	@Test
-	public void test01listAllUnauthorized() throws Exception {
-		List<Model> mockModels = Arrays.asList(
-				new Model("product", new HashSet<Field>(Arrays.asList(
-						new Field("name", "string"),
-						new Field("price", "float"),
-						new Field("qty", "integer"),
-						new Field("category", "string")))),
-				new Model("costumer", new HashSet<Field>(Arrays.asList(
-						new Field("name", "string"),
-						new Field("age", "integer"),
-						new Field("email", "string"))))
-				);
-		
-		when(modelControllerMock.getAll()).thenReturn(ResponseEntity.ok(new Response<List<Model>>(mockModels)));
-		
-		this.mockMvc.perform(get("/admin/model").with(httpBasic("none", "none")))
-		.andExpect(status().isUnauthorized())
-		.andReturn();
-	}
-	
-	
-	@Test
-	public void test02listAllForbiden() throws Exception {
-		List<Model> mockModels = Arrays.asList(
-				new Model("product", new HashSet<Field>(Arrays.asList(
-						new Field("name", "string"),
-						new Field("price", "float"),
-						new Field("qty", "integer"),
-						new Field("category", "string")))),
-				new Model("costumer", new HashSet<Field>(Arrays.asList(
-						new Field("name", "string"),
-						new Field("age", "integer"),
-						new Field("email", "string"))))
-				);
-		
-		when(modelControllerMock.getAll()).thenReturn(ResponseEntity.ok(new Response<List<Model>>(mockModels)));
-		
-		this.mockMvc.perform(get("/admin/model").with(httpBasic("user", "user123")))
-		.andExpect(status().isForbidden())
-		.andReturn();
-	}
-	
-	
-	@Test
-	public void test03listAll() throws Exception {
-		List<Model> mockModels = Arrays.asList(
-				new Model("product", new HashSet<Field>(Arrays.asList(
-						new Field("name", "string"),
-						new Field("price", "float"),
-						new Field("qty", "integer"),
-						new Field("category", "string")))),
-				new Model("costumer", new HashSet<Field>(Arrays.asList(
-						new Field("name", "string"),
-						new Field("age", "integer"),
-						new Field("email", "string"))))
-				);
-		
-		when(modelControllerMock.getAll()).thenReturn(ResponseEntity.ok(new Response<List<Model>>(mockModels)));
-		
-		this.mockMvc.perform(get("/admin/model").with(httpBasic("admin", "admin123")))
-		.andExpect(status().isOk())
-		.andReturn();
-	}
-	
-
-	@Test
-	public void test04getById() throws Exception {
-		Optional<Model> modelMock = Optional.of(new Model("1", "product", new HashSet<Field>(Arrays.asList(
+	@DisplayName("01 - List all models")
+	public void test01getAll() {
+		// Clear Model
+		this.modelService.deleteByName("customer");
+		// Creating model
+		this.modelService.insert(new Model(null, "customer", new HashSet<Field>(Arrays.asList(
 				new Field("name", "string"),
-				new Field("price", "float"),
-				new Field("qty", "integer"),
-				new Field("category", "string")))));
+				new Field("age", "integer"),
+				new Field("email", "string")))));
 		
-//		when(modelControllerMock.getById("1")).thenReturn(ResponseEntity.ok(new Response<Optional<Model>>(modelMock)));	
-		
-		this.mockMvc.perform(get("/admin/model").with(httpBasic("admin", "admin123")))
-		.andExpect(status().isOk())
-		.andReturn();
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		ResponseEntity<String> response = restTemplate.getForEntity("/admin/model", String.class);
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
 	}
-	
 	
 	@Test
-	public void test05post() throws Exception {
-		Model modelMockPost = new Model("product", new HashSet<Field>(Arrays.asList(
-				new Field("name", "string"),
-				new Field("price", "float"),
-				new Field("qty", "integer"),
-				new Field("category", "string"))));
-		
-
-		Optional<Model> modelMock = Optional.of(new Model("1", "product", new HashSet<Field>(Arrays.asList(
-				new Field("name", "string"),
-				new Field("price", "float"),
-				new Field("qty", "integer"),
-				new Field("category", "string")))));
-		
-//		when(modelControllerMock.insert(modelMockPost, null)).thenReturn(ResponseEntity.ok(new Response<Optional<Model>>(modelMock)));	
-//		
-//		String content = "{\n" + 
-//				"	\"name\": \"product\",\n" + 
-//				"	\"fields\": [\n" + 
-//				"		{\n" + 
-//				"			\"name\":\"name\",\n" + 
-//				"			\"type\": \"string\"\n" + 
-//				"		},\n" + 
-//				"		{\n" + 
-//				"			\"name\":\"price\",\n" + 
-//				"			\"type\": \"float\"\n" + 
-//				"		},\n" + 
-//				"		{\n" + 
-//				"			\"name\":\"qty\",\n" + 
-//				"			\"type\": \"integer\"\n" + 
-//				"		},\n" + 
-//				"		{\n" + 
-//				"			\"name\":\"category\",\n" + 
-//				"			\"type\": \"string\"\n" + 
-//				"		}\n" + 
-//				"		]\n" + 
-//				"}";
-//		
-//		this.mockMvc.perform(post("/admin/model")
-//				.content("{\"name\": \"customer\"}")
-//				.contentType(MediaType.APPLICATION_JSON)
-//				.with(httpBasic("admin", "admin123")))
-//		.andDo(MockMvcResultHandlers.print())
-//		.andExpect(status().isCreated())
-//		.andReturn();
+	@DisplayName("02 - Get all models is forbiden for that user")
+	public void test02getAllForbiden() {
+		restTemplate = restTemplate.withBasicAuth("user", "user123");
+		ResponseEntity<String> response = restTemplate.getForEntity("/admin/model", String.class);
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
 	}
 	
+	@Test
+	@DisplayName("03 - Get one model by id")
+	public void test03getById() {
+		// Clear Model
+		this.modelService.deleteByName("customer");
+		// Creating model
+		Model model = this.modelService.insert(new Model(null, "customer", new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string")))));
+		
+		// Consulting Model		
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		ResponseEntity<String> response = restTemplate.getForEntity("/admin/model/{id}", String.class, model.getId());
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+	}
+	
+	@Test
+	@DisplayName("04 - Get one model by id not found")
+	public void test04getByIdNotFound() {
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		ResponseEntity<String> response = restTemplate.getForEntity("/admin/model/{id}", String.class, -1);
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());
+	}
+	
+	@Test
+	@DisplayName("05 - Create new model")
+	public void test0500createNewModel() {
+		this.modelService.deleteByName("customer");
+		
+		Model model = new Model(null, "customer", new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string"))));
+		
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		ResponseEntity<String> response = restTemplate.postForEntity("/admin/model", model, String.class);
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.CREATED.value());
+	}
+	
+	@Test
+	@DisplayName("05.01 - Create new model invalid")
+	public void test0501createNewModelInvalid() {
+		Model model = new Model(null, null, new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string"))));
+		
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		ResponseEntity<String> response = restTemplate.postForEntity("/admin/model", model, String.class);
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+	
+	@Test
+	@DisplayName("05.02 - Create new model duplicated")
+	public void test0502createNewModelDuplicated() {
+		// Clear Model
+		this.modelService.deleteByName("customer");
+		// Creating model
+		this.modelService.insert(new Model(null, "customer", new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string")))));
+		
+		Model modelDuplicated = new Model(null, "customer", new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string"))));
+		
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		ResponseEntity<String> response = restTemplate.postForEntity("/admin/model", modelDuplicated, String.class);
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.CONFLICT.value());
+	}
+	
+	@Test
+	@DisplayName("06 - Edit model")
+	public void test0600UpdatewModel() {
+		// Clear Model
+		this.modelService.deleteByName("customer");
+		this.modelService.deleteByName("customernew");
+		// Creating model
+		Model model = this.modelService.insert(new Model(null, "customer", new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string")))));
+		
+		Model modelUpdate = new Model(null, "customernew", new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string"))));
+		
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		
+		HttpEntity<Model> m = new HttpEntity<Model>(modelUpdate);
+		ResponseEntity<String> response = restTemplate.exchange("/admin/model/{id}", HttpMethod.PUT, m, String.class, model.getId());
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());
+	}
+	
+	@Test
+	@DisplayName("06.01 - Edit model Invalid")
+	public void test0601UpdatewModelInvalid() {
+		// Clear Model
+		this.modelService.deleteByName("customer");
+		// Creating model
+		Model model = this.modelService.insert(new Model(null, "customer", new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string")))));
+		
+		Model modelUpdate = new Model(null, null, new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string"))));
+		
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		
+		HttpEntity<Model> m = new HttpEntity<Model>(modelUpdate);
+		ResponseEntity<String> response = restTemplate.exchange("/admin/model/{id}", HttpMethod.PUT, m, String.class, model.getId());
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+	
+	@Test
+	@DisplayName("07 - Delete model")
+	public void test0700DeletewModel() {
+		// Clear Model
+		this.modelService.deleteByName("customer");
+		// Creating model
+		Model model = this.modelService.insert(new Model(null, "customer", new HashSet<Field>(Arrays.asList(
+				new Field("name", "string"),
+				new Field("age", "integer"),
+				new Field("email", "string")))));
+		
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		restTemplate.delete("/admin/model/{id}", model.getId());
+		ResponseEntity<String> response = restTemplate.getForEntity("/admin/model/{id}", String.class, model.getId());
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());
+	}
+	
+	@Test
+	@DisplayName("07.01 - Delete model NotFound")
+	public void test0701DeletewModelNotFound() {
+		restTemplate = restTemplate.withBasicAuth("admin", "admin123");
+		HttpEntity<String> m = new HttpEntity<String>("");
+		ResponseEntity<String> response = restTemplate.exchange("/admin/model/{id}", HttpMethod.DELETE, m, String.class, -1);
+		assertThat(response.getStatusCodeValue()).isEqualTo(HttpStatus.NOT_FOUND.value());
+	}
 	
 	
 }

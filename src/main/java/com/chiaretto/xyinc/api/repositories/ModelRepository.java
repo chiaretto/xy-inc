@@ -9,4 +9,6 @@ import com.chiaretto.xyinc.api.documents.Model;
 public interface ModelRepository extends MongoRepository<Model, String> {
 
 	Optional<Model> findByName(String name);
+	
+	void deleteByName(String name);
 }

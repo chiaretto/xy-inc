@@ -46,6 +46,11 @@ public class ModelServiceImpl implements ModelService {
 	@Override
 	public void delete(String id) {
 		this.modelRepository.deleteById(id);
-
 	}
+	
+	@Override
+	public void deleteByName(String name) {
+		this.modelRepository.deleteByName(name);
+	}
+	
 }

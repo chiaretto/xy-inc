@@ -41,6 +41,10 @@ public class MetaModelServiceImpl implements MetaModelService {
 	@Override
 	public void delete(String model, String id) {
 		this.metaModelRepository.deleteByModelAndId(model, id);
-
+	}
+	
+	@Override
+	public void deleteByModel(String model) {
+		this.metaModelRepository.deleteByModel(model);
 	}
 }

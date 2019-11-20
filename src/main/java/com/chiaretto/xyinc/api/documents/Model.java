@@ -27,15 +27,15 @@ public class Model {
 		this.fields = fields;
 	}
 	
-	public Model(String name, Set<Field> fields) {
-		this.name = name;
-		this.fields = fields;
-	}
+//	public Model(String name, Set<Field> fields) {
+//		this.name = name;
+//		this.fields = fields;
+//	}
 	
-	public Model(String name) {
-		this.name = name;
-	}
-	
+//	public Model(String name) {
+//		this.name = name;
+//	}
+//	
 	public String getId() {
 		return id;
 	}

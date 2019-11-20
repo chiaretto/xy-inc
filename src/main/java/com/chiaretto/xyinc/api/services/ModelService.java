@@ -18,4 +18,7 @@ public interface ModelService {
 	Model update(Model model);
 	
 	void delete(String id);
+
+	void deleteByName(String name);
+	
 }

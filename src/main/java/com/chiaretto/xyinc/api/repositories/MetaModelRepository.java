@@ -18,4 +18,6 @@ public interface MetaModelRepository extends MongoRepository<MetaModel, String> 
 //	MetaModel update(MetaModel metaModel);
 //	
 	void deleteByModelAndId(String model, String id);
+	
+	void deleteByModel(String model);
 }

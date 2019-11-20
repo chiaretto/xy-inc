@@ -16,4 +16,6 @@ public interface MetaModelService {
 	MetaModel update(MetaModel metaModel);
 	
 	void delete(String model, String id);
+	
+	void deleteByModel(String model);
 }
