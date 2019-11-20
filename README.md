@@ -27,9 +27,9 @@ Meta Data Management System
 ```sh
 $ git clone ...
 ```
-  - execute in folder
+  - execute shell in folder
 ```sh
-$ docker-compose up
+$ ./RodaDockerCompose.sh
 ```
 
 # Basic users
